@@ -1,5 +1,6 @@
 import 'alpinejs';
 import * as monaco from 'monaco-editor';
+import * as ts from 'typescript';
 
 // @ts-ignore
 self.MonacoEnvironment = {
@@ -60,6 +61,19 @@ const source = `(() => {
 })();
 `;
 
+function updatePreview(scriptContent: string) {
+    const iframe = document.getElementsByTagName('iframe')[0];
+    const content = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!content) return;
+    // let value = content.documentElement.outerHTML;
+    let value = `<script></script>`;
+    // 'window.uu = parent.uu;\n'
+    value = value.replace(/(?<=<script>)[\s\S]*(?=<\/script>)/, 'window.uu = parent.uu;\n' + scriptContent);
+    content.open();
+    content.write(value);
+    content.close();
+}
+
 
 function setupEditor(libSource: string) {
     const container = document.getElementById('editor');
@@ -82,15 +96,13 @@ function setupEditor(libSource: string) {
         });
 
         if (!monacoInstance) return;
-        // monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
-        //     updatePreview(ts.transpile(monacoInstance.getValue()));
-        // });
+        monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
+            console.log(ts.transpile(monacoInstance.getValue()));
+        });
         // updatePreview(ts.transpile(monacoInstance.getValue()));
         window.onresize = () => {
             monacoInstance.layout();
         };
-        // (window as any)['monacoInstance'] = monacoInstance;
-        // (window as any)['ts'].transpile(monacoInstance.getValue())
     }
 }
 
