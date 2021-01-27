@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "parcel index.html",
+    "start": "parcel index.html -d docs",
     "build": "yarn build-index && yarn build-json && yarn build-css && yarn build-html && yarn build-ts && yarn build-worker",
-    "build-index": "parcel build index.html",
-    "build-json": "parcel build ./node_modules/monaco-editor/esm/vs/language/json/json.worker.js --no-source-maps",
-    "build-css": "parcel build ./node_modules/monaco-editor/esm/vs/language/css/css.worker.js --no-source-maps",
-    "build-html": "parcel build ./node_modules/monaco-editor/esm/vs/language/html/html.worker.js --no-source-maps",
-    "build-ts": "parcel build ./node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js --no-source-maps",
-    "build-worker": "parcel build ./node_modules/monaco-editor/esm/vs/editor/editor.worker.js --no-source-maps"
+    "build-index": "parcel build index.html -d docs --public-url .",
+    "build-json": "parcel build ./node_modules/monaco-editor/esm/vs/language/json/json.worker.js --no-source-maps -d docs --public-url .",
+    "build-css": "parcel build ./node_modules/monaco-editor/esm/vs/language/css/css.worker.js --no-source-maps -d docs --public-url .",
+    "build-html": "parcel build ./node_modules/monaco-editor/esm/vs/language/html/html.worker.js --no-source-maps -d docs --public-url .",
+    "build-ts": "parcel build ./node_modules/monaco-editor/esm/vs/language/typescript/ts.worker.js --no-source-maps -d docs --public-url .",
+    "build-worker": "parcel build ./node_modules/monaco-editor/esm/vs/editor/editor.worker.js --no-source-maps -d docs --public-url ."
   },
   "license": "MIT",
   "dependencies": {
