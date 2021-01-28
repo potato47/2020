@@ -19,7 +19,7 @@
     "build-monaco-ts-dev": "parcel build $npm_package_monaco_ts",
     "build-monaco-editor-dev": "parcel build $npm_package_monaco_editor",
     "build": "yarn build-index && yarn build-monaco",
-    "build-index": "parcel build index.html -d docs --public-url .",
+    "build-index": "parcel build index.html --no-source-maps -d docs --public-url .",
     "build-monaco": "yarn build-monaco-json && yarn build-monaco-css && yarn build-monaco-html && yarn build-monaco-ts && yarn build-monaco-editor",
     "build-monaco-json": "parcel build $npm_package_monaco_json --no-source-maps -d docs --public-url .",
     "build-monaco-css": "parcel build $npm_package_monaco_css --no-source-maps -d docs --public-url .",
