@@ -37,6 +37,11 @@ function updatePreview(scriptContent: string) {
     content.close();
 }
 
+function layoutCanvas() {
+    const canvas = document.getElementById('preview-canvas') as HTMLCanvasElement;
+    canvas.height = canvas.width = document.body.clientWidth / 3;
+}
+
 
 function setupEditor(code: string, definitions: string) {
     const container = document.getElementById('editor');
@@ -62,8 +67,10 @@ function setupEditor(code: string, definitions: string) {
         updatePreview(ts.transpile(monacoInstance.getValue()));
         window.onresize = () => {
             monacoInstance.layout();
+            layoutCanvas();
         };
     }
 }
 
+layoutCanvas();
 setupEditor(uu.defaultTemplate, uu.typings);

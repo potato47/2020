@@ -29,7 +29,7 @@ export class WebglEngine {
     }
 
     static getCanvas() {
-        return document.getElementById('preview_canvas') as HTMLCanvasElement;
+        return document.getElementById('preview-canvas') as HTMLCanvasElement;
     }
 
     constructor(config: {
