@@ -1,9 +1,13 @@
 import 'alpinejs';
 import * as monaco from 'monaco-editor';
 import * as ts from 'typescript';
+import * as uu from './engine/index';
 
 // @ts-ignore
-self.MonacoEnvironment = {
+window.uu = uu;
+
+// @ts-ignore
+window.MonacoEnvironment = {
     getWorkerUrl: function (moduleId, label) {
         if (label === 'json') {
             return './json.worker.js';
@@ -22,88 +26,44 @@ self.MonacoEnvironment = {
 };
 
 
-const source = `(() => {
-    new uu.WebglEngine({
-        vs: \`
-            attribute vec4 aPosition;
-            void main() {
-                gl_Position = aPosition;
-            }
-        \`,
-        fs: \`
-            precision mediump float;
-            uniform float uWidth;
-            uniform float uHeight;
-            void main() {
-                gl_FragColor = vec4(gl_FragCoord.x / uWidth, 0.0, gl_FragCoord.y / uHeight, 1.0);
-            }
-        \`,
-    }).setBuffer(
-        WebGLRenderingContext.ARRAY_BUFFER,
-        new Float32Array([
-            0.0, 0.5,
-            -0.5, -0.5,
-            0.5, -0.5
-        ])
-    ).setAttribute(
-        'aPosition', 2, WebGLRenderingContext.FLOAT, 0, 0
-    ).setUniform(
-        'uWidth', 400.0, WebGLRenderingContext.FLOAT
-    ).setUniform(
-        'uHeight', 400.0, WebGLRenderingContext.FLOAT
-    ).setClearColor(
-        0, 0, 0, 1
-    ).clear(
-        WebGLRenderingContext.COLOR_BUFFER_BIT
-    ).drawArrays(
-        WebGLRenderingContext.TRIANGLES, 0, 3
-    );
-})();
-`;
-
 function updatePreview(scriptContent: string) {
     const iframe = document.getElementsByTagName('iframe')[0];
     const content = iframe.contentDocument || iframe.contentWindow?.document;
     if (!content) return;
-    // let value = content.documentElement.outerHTML;
     let value = `<script></script>`;
-    // 'window.uu = parent.uu;\n'
-    value = value.replace(/(?<=<script>)[\s\S]*(?=<\/script>)/, 'window.uu = parent.uu;\n' + scriptContent);
+    value = value.replace(/(?<=<script>)[\s\S]*(?=<\/script>)/, 'window.uu = parent.uu;\n' + scriptContent).replace(/document./g, 'parent.document.');
     content.open();
     content.write(value);
     content.close();
 }
 
 
-function setupEditor(libSource: string) {
+function setupEditor(code: string, definitions: string) {
     const container = document.getElementById('editor');
     if (container) {
-        // compiler options
         monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
             target: monaco.languages.typescript.ScriptTarget.ES2015,
             allowNonTsExtensions: true
         });
 
-        const libUri = 'ts:filename/facts.d.ts';
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(libSource, libUri);
-        // When resolving definitions and references, the editor will try to use created models.
-        // Creating a model for the library allows "peek definition/references" commands to work with the library.
-        monaco.editor.createModel(libSource, 'typescript', monaco.Uri.parse(libUri));
+        const libUri = 'ts:filename/uu.d.ts';
+        monaco.languages.typescript.typescriptDefaults.addExtraLib(definitions, libUri);
+        monaco.editor.createModel(definitions, 'typescript', monaco.Uri.parse(libUri));
         const monacoInstance = monaco.editor.create(container, {
-            value: source,
+            value: code,
             language: 'typescript',
             theme: 'vs-dark',
         });
 
         if (!monacoInstance) return;
         monacoInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
-            console.log(ts.transpile(monacoInstance.getValue()));
+            updatePreview(ts.transpile(monacoInstance.getValue()));
         });
-        // updatePreview(ts.transpile(monacoInstance.getValue()));
+        updatePreview(ts.transpile(monacoInstance.getValue()));
         window.onresize = () => {
             monacoInstance.layout();
         };
     }
 }
 
-setupEditor(`declare namespace uu {export function test(): void;}`);
+setupEditor(uu.defaultTemplate, uu.typings);
